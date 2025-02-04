@@ -1,6 +1,6 @@
 from config import Config
-from controller.main_page_controller import MainPageController
-from controller.process_payment_controller import ProcessPaymentController
+from backend.app.controller.main_page_controller import MainPageController
+from backend.app.controller.process_payment_controller import ProcessPaymentController
 from view.main_page_view import MainPageView
 from view.process_payment_view import ProcessPaymentView
 
