@@ -2,9 +2,11 @@ from abc import ABC
 from abc import abstractmethod
 from datetime import datetime
 
+from pydantic import BaseModel, Field
+
+# TODO: Add correct data types and ensure input values to be valid
 
 class PaymentMethodStrategy(ABC):
-
     @abstractmethod
     def get_payment_details(self):
         pass
@@ -36,72 +38,69 @@ class ApplePayBuyerProtectionStrategy(BuyerProtectionStrategy):
         print("You have a Apple Pay protection of 200 days.")
 
 
+class PayPalModel(BaseModel):
+    user_name: str = Field(..., example="John Doe")
+    password: str = Field(..., example="sdf/7dquiasdh!", min_length=8, max_length=18)
+
+
 class PayPalStrategy(PaymentMethodStrategy):
-    def __init__(self, user_name: str, password: str):
-        self.user_name = user_name
-        self.password = password
+    def __init__(self, paypal_model: PayPalModel):
+        self.__paypal_model = paypal_model
 
     def get_payment_details(self):
         return {
-            "payment_method": "PayPal",
-            "user_name": self.user_name,
-            "password": self.password
+            "payment_method": "paypal",
+            **self.__paypal_model.model_dump(exclude={"password"})
         }
+
+
+class CreditCardModel(BaseModel):
+    credit_card_number: str = Field(..., max_length=20, example="81238712387")
+    expiration_date: str = Field(..., example="28/11/2025")
+    cvc: str = Field(..., max_length=3, example="123")
+    first_name: str = Field(..., max_length=40, example="Peter")
+    last_name: str = Field(..., max_length=40, example="Lustig")
 
 
 class CreditCardStrategy(PaymentMethodStrategy):
-    def __init__(self, credit_card_number: int, expiration_date: datetime, cvc: int, first_name: str, last_name: str):
+    def __init__(self, credit_card_model: CreditCardModel):
+        self.__credit_card_model = credit_card_model
 
-        self.__credit_card_number = credit_card_number
-        self.__expiration_date = expiration_date
-        self.__cvc = cvc
-        self.__name = first_name + " " + last_name
-
-        self.__check_cvc_length()
-
-    # Polymorphism
-    def get_payment_details(self):
-        expiration_date_str = self.__expiration_date.strftime("%Y-%m-%d")
-
-        return {
-            "payment_method": "Credit Card",
-            "credit_card_number": self.__credit_card_number,
-            "expiration_date": expiration_date_str,
-            "cvc": self.__cvc,
-            "name": self.__name
-        }
-
-    def __check_cvc_length(self):
-        cvc_str = str(self.__cvc)
-        if len(cvc_str) > 3:
-            raise ValueError("CVC length can not be longer than 3 digits!")
-        elif len(cvc_str) < 3:
-            raise ValueError("CVC length can not be less than 3 digits!")
-
-
-class PaysafeStrategy(PaymentMethodStrategy):
-    def __init__(self, paysafe_code: int):
-        self.__paysafe_code = paysafe_code
-
-    # Polymorphism
     def get_payment_details(self):
         return {
-            "payment_method": "Paysafe",
-            "paysafe_code": self.__paysafe_code
+            "payment_method": "credit_card",
+            **self.__credit_card_model.model_dump(exclude={"cvc"})
         }
+
+
+class PaySafeModel(BaseModel):
+    paysafe_code: str = Field(..., max_length=18, example="21312312123")
+
+
+class PaySafeStrategy(PaymentMethodStrategy):
+    def __init__(self, paysafe_model: PaySafeModel):
+        self.__paysafe_model = paysafe_model
+
+    def get_payment_details(self):
+        return {
+            "payment_method": "paysafe",
+            **self.__paysafe_model.model_dump()
+        }
+
+
+class ApplePayModel(BaseModel):
+    apple_id: str = Field(..., example="dogan@outlook.de")
+    password: str = Field(..., example="kndkjansdna82828")
 
 
 class ApplePayStrategy(PaymentMethodStrategy):
-    def __init__(self, apple_id: str, password: str):
-        self.__user_name = apple_id
-        self.__password = password
+    def __init__(self, apple_pay_model: ApplePayModel):
+        self.__apple_pay_model = apple_pay_model
 
-    # Polymorphism
     def get_payment_details(self):
         return {
             "payment_method": "ApplePay",
-            "apple_id": self.__user_name,
-            "password": self.__password
+            **self.__apple_pay_model.model_dump(exclude={"password"})
         }
 
 
