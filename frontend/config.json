@@ -1,3 +1,3 @@
 {
-  "payment_methods":["PayPal", "Credit card", "Paysafe", "ApplePay"]
+  "payment_methods":["PayPal", "Master Card", "Paysafe", "ApplePay"]
 }

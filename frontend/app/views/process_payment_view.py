@@ -17,8 +17,8 @@ class PaymentView:
 
             if get_paypal_data:
                 return get_paypal_data
-        elif self.__select_payment == "Credit card":
-            credit_card_data = self.__get_credit_card_input_data()
+        elif self.__select_payment == "Master Card":
+            credit_card_data = self.__get_master_card_input_data()
 
             if credit_card_data:
                 return credit_card_data
@@ -49,7 +49,7 @@ class PaymentView:
                         "paypal_password": paypal_password
                     }
 
-    def __get_credit_card_input_data(self) -> dict:
+    def __get_master_card_input_data(self) -> dict:
         with st.container():
             credit_card_number = st.text_input("Please enter your credit card number.", key=int)
             expiration_date = st.date_input("Please enter the expiration date of your credit card.")
@@ -61,7 +61,7 @@ class PaymentView:
             if pay_button:
                 if all([credit_card_number, expiration_date, cvc_number, first_name, last_name]):
                     return {
-                        "payment_type": "Credit card",
+                        "payment_type": "Master Card",
                         "credit_card_number": credit_card_number,
                         "expiration_date": expiration_date,
                         "cvc_number": cvc_number,
