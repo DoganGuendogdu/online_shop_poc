@@ -1,9 +1,9 @@
 from abc import ABC
 from abc import abstractmethod
+from datetime import datetime
 
 from pydantic import BaseModel, Field, SecretStr, EmailStr
 
-from datetime import datetime
 
 # TODO: Add correct data types and ensure input values to be valid
 
@@ -78,7 +78,7 @@ class MasterCardStrategy(PaymentMethodStrategy):
 
 
 class PaySafeModel(BaseModel):
-    paysafe_code: str = Field(..., max_length=18, example="21312312123")
+    paysafe_code: int = Field(..., ge=0000000000000000, le=9999999999999999, example=9828275081835264)
 
 
 class PaySafeStrategy(PaymentMethodStrategy):

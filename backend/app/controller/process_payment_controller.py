@@ -17,7 +17,7 @@ class ProcessPaymentController:
         self.__payment_model.set_payment_method(MasterCardStrategy(credit_card_model))
         return self.__payment_model.get_payment_details()
 
-    def get_PaySafe_payment_details(self, paysafe_code: str):
+    def get_PaySafe_payment_details(self, paysafe_code: int):
         paysafe_model = PaySafeModel(paysafe_code=paysafe_code)
         self.__payment_model.set_payment_method(PaySafeStrategy(paysafe_model))
         return self.__payment_model.get_payment_details()
