@@ -10,11 +10,11 @@ class ProcessPaymentController:
         self.__payment_model.set_payment_method(PayPalStrategy(paypal_model))
         return self.__payment_model.get_payment_details()
 
-    def get_credit_card_payment_details(self, credit_card_number: str, expiration_date: str, cvc_number: str,
+    def get_master_card_payment_details(self, credit_card_number: str, expiration_date: datetime, cvc_number: int,
                                         first_name: str, last_name: str):
-        credit_card_model = CreditCardModel(credit_card_number=credit_card_number, expiration_date=expiration_date,
+        credit_card_model = MasterCardModel(credit_card_number=credit_card_number, expiration_date=expiration_date,
                                             cvc=cvc_number, first_name=first_name, last_name=last_name)
-        self.__payment_model.set_payment_method(CreditCardStrategy(credit_card_model))
+        self.__payment_model.set_payment_method(MasterCardStrategy(credit_card_model))
         return self.__payment_model.get_payment_details()
 
     def get_PaySafe_payment_details(self, paysafe_code: str):

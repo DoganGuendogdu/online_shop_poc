@@ -3,6 +3,7 @@ from abc import abstractmethod
 
 from pydantic import BaseModel, Field, SecretStr, EmailStr
 
+from datetime import datetime
 
 # TODO: Add correct data types and ensure input values to be valid
 
@@ -56,16 +57,17 @@ class PayPalStrategy(PaymentMethodStrategy):
         }
 
 
-class CreditCardModel(BaseModel):
-    credit_card_number: str = Field(..., max_length=20, example="81238712387")
-    expiration_date: str = Field(..., example="28/11/2025")
-    cvc: str = Field(..., max_length=3, example="123")
+class MasterCardModel(BaseModel):
+    credit_card_number: str = Field(..., min_length=16, max_length=19, example="5555 5555 5555 4444")
+    expiration_date: datetime = Field(..., example=datetime.now())
+    # Numbers 100-999, so all 3-digit numbers
+    cvc: int = Field(..., ge=100, le=999, example=123)
     first_name: str = Field(..., max_length=40, example="Peter")
     last_name: str = Field(..., max_length=40, example="Lustig")
 
 
-class CreditCardStrategy(PaymentMethodStrategy):
-    def __init__(self, credit_card_model: CreditCardModel):
+class MasterCardStrategy(PaymentMethodStrategy):
+    def __init__(self, credit_card_model: MasterCardModel):
         self.__credit_card_model = credit_card_model
 
     def get_payment_details(self):

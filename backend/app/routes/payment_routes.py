@@ -2,7 +2,7 @@ from fastapi import APIRouter
 
 from ..controller.process_payment_controller import ProcessPaymentController
 from ..models.payment_methods_model import ApplePayModel
-from ..models.payment_methods_model import CreditCardModel
+from ..models.payment_methods_model import MasterCardModel
 from ..models.payment_methods_model import PayPalModel
 from ..models.payment_methods_model import PaySafeModel
 
@@ -18,9 +18,9 @@ def get_PayPal_payment_details(paypal_payment: PayPalModel):
         paypal_payment.password)
 
 
-@router.post("/payment/credit_card")
-def get_credict_card_payment_details(credit_card_payment: CreditCardModel):
-    return process_payment_controller.get_credit_card_payment_details(
+@router.post("/payment/master_card")
+def get_credict_card_payment_details(credit_card_payment: MasterCardModel):
+    return process_payment_controller.get_master_card_payment_details(
         credit_card_payment.credit_card_number, credit_card_payment.expiration_date, credit_card_payment.cvc,
         credit_card_payment.first_name, credit_card_payment.last_name)
 
