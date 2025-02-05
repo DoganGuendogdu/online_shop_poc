@@ -22,7 +22,7 @@ class ProcessPaymentController:
         self.__payment_model.set_payment_method(PaySafeStrategy(paysafe_model))
         return self.__payment_model.get_payment_details()
 
-    def get_ApplePay_payment_details(self, apple_id: str, apple_id_password: str):
+    def get_ApplePay_payment_details(self, apple_id: EmailStr, apple_id_password: SecretStr):
         apple_pay_model = ApplePayModel(apple_id=apple_id, password=apple_id_password)
         self.__payment_model.set_payment_method(ApplePayStrategy(apple_pay_model))
         return self.__payment_model.get_payment_details()

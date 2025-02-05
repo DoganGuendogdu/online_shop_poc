@@ -93,8 +93,8 @@ class PaySafeStrategy(PaymentMethodStrategy):
 
 
 class ApplePayModel(BaseModel):
-    apple_id: str = Field(..., example="dogan@outlook.de")
-    password: str = Field(..., example="kndkjansdna82828")
+    apple_id: EmailStr = Field(..., example="olaf@outlook.de")
+    password: SecretStr = Field(..., min_length=8, max_length=40, example="kndkjansdna82828")
 
 
 class ApplePayStrategy(PaymentMethodStrategy):
