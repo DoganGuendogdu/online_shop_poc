@@ -1,8 +1,8 @@
 from abc import ABC
 from abc import abstractmethod
-from datetime import datetime
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, SecretStr, EmailStr
+
 
 # TODO: Add correct data types and ensure input values to be valid
 
@@ -39,8 +39,10 @@ class ApplePayBuyerProtectionStrategy(BuyerProtectionStrategy):
 
 
 class PayPalModel(BaseModel):
-    user_name: str = Field(..., example="John Doe")
-    password: str = Field(..., example="sdf/7dquiasdh!", min_length=8, max_length=18)
+    email: EmailStr = Field(..., example="john.doe@gmail.com")
+    # SecretStr ensures that no password is logged or exposed
+    # Use syntactic salt 'get_secret_value()' to retrieve password
+    password: SecretStr = Field(..., min_length=8, max_length=88)
 
 
 class PayPalStrategy(PaymentMethodStrategy):

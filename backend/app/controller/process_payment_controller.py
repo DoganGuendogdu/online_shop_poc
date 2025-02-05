@@ -5,8 +5,8 @@ class ProcessPaymentController:
     def __init__(self):
         self.__payment_model = PaymentModel()
 
-    def get_PayPal_payment_details(self, paypal_user_name: str, paypal_password: str):
-        paypal_model = PayPalModel(paypal_user_name=paypal_user_name, paypal_password=paypal_password)
+    def get_PayPal_payment_details(self, paypal_user_name: str, paypal_password: SecretStr):
+        paypal_model = PayPalModel(email=paypal_user_name, password=paypal_password)
         self.__payment_model.set_payment_method(PayPalStrategy(paypal_model))
         return self.__payment_model.get_payment_details()
 
