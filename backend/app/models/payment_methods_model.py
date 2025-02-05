@@ -58,7 +58,7 @@ class PayPalStrategy(PaymentMethodStrategy):
 
 
 class MasterCardModel(BaseModel):
-    credit_card_number: str = Field(..., min_length=16, max_length=19, example="5555 5555 5555 4444")
+    credit_card_number: int = Field(..., ge=0000000000000000, le=9999999999999999, example=9828275081835264)
     expiration_date: datetime = Field(..., example=datetime.now())
     # Numbers 100-999, so all 3-digit numbers
     cvc: int = Field(..., ge=100, le=999, example=123)
