@@ -1,3 +1,5 @@
+# TODO: Create a separate non root user under which rights the container will run.
+
 # Select 'python:3.11-slim' as base image to provide lightweight python environment.
 FROM python:3.11-slim
 
@@ -30,7 +32,8 @@ CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0",  "--port", "1111"]
 # docker build -t fastapi-app .
 
 # Run Docker container:
+# -d: detached -> run container as background process.
 # -p: Flag to specify port which will be binded to exposed Docker port.
 # 1111:1111: Bind local port to exposed Docker port.
 # fastapi-app: Name of docker image.
-# docker run -p 1111:1111 fastapi-app
+# docker run -d -p 1111:1111 fastapi-app
