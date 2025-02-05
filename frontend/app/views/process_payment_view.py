@@ -1,6 +1,6 @@
 import streamlit as st
 
-from src.config import Config
+from app.config import Config
 
 
 class ProcessPaymentView:
