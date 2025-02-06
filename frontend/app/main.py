@@ -16,7 +16,7 @@ def main():
     payment_view = PaymentView(config)
     payment_service = PaymentService()
     payment_controller = PaymentController(payment_view, payment_service)
-    # payment_controller.call_payment_api()
+    payment_controller.call_payment_api()
 
 
 if __name__ == "__main__":
