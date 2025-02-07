@@ -8,5 +8,6 @@ class PaymentController:
         self.__payment_service = payment_service
 
     def call_payment_api(self):
-        payment_input_data = self.__payment_view.get_payment_input_data()
-        #self.__payment_service.post_payment_request(payment_input_data)
+        payment_input_data = self.__payment_view.handle_payment()
+        if payment_input_data:
+            self.__payment_service.post_payment(payment_input_data)
