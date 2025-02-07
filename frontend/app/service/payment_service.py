@@ -6,7 +6,7 @@ import requests
 from requests.models import Response
 
 
-# TODO: Validate inputs.
+# TODO: Validate inputs. Read endpoints from config. Check why passwords are exposed. Handle HTTP statuses.
 class PaymentService:
     def __init__(self):
         self.__logger = logging.getLogger("payment_logger")
@@ -86,15 +86,17 @@ class PaymentService:
         self.__logger.debug(f"Defined endpoint for POST request: '{master_card_url}'")
         self.__logger.debug(f"Created JSON data: '{master_card_json}'")
 
+        master_card_request = None
         try:
             self.__logger.debug("Sending POST request to endpoint")
             master_card_request = requests.post(master_card_url, json=master_card_json)
             self.__logger.debug(f"Response '{master_card_request}'.")
             # return master_card_request
-        except requests.HTTPError as e:
+        except requests.RequestException as e:
             logging.debug(f"Error while sending POST request to endpoint '{master_card_url}': {e}.")
 
-        return self.__is_response_valid(master_card_request)
+        # return self.__is_response_valid(master_card_request)
+        return master_card_request
 
     def __post_apple_pay_payment(self, apple_id: str, apple_password: str):
         apple_pay_url = "http://127.0.0.1:1111/payment/apple_pay"
@@ -108,14 +110,16 @@ class PaymentService:
         self.__logger.debug(f"Defined endpoint for POST request: '{apple_pay_url}'")
         self.__logger.debug(f"Created JSON data: '{apple_pay_json}'")
 
+        apple_pay_request = None
         try:
             self.__logger.debug("Sending POST request to endpoint")
             apple_pay_request = requests.post(apple_pay_url, json=apple_pay_json)
             self.__logger.debug(f"Response '{apple_pay_request}'.")
-        except requests.HTTPError as e:
+        except requests.RequestException as e:
             logging.debug(f"Error while sending POST request to endpoint '{apple_pay_url}': {e}.")
 
-        return self.__is_response_valid(apple_pay_request)
+        return apple_pay_request
+        # return self.__is_response_valid(apple_pay_request)
 
     def __post_paysafe_payment(self, paysafe_code: int):
         paysafe_url = "http://127.0.0.1:1111/payment/paysafe"
@@ -133,14 +137,16 @@ class PaymentService:
         self.__logger.debug(f"Defined endpoint for POST request: '{paysafe_url}'")
         self.__logger.debug(f"Created JSON data: '{paysafe_json}'")
 
+        paysafe_request = None
         try:
             self.__logger.debug("Sending POST request to endpoint")
             paysafe_request = requests.post(paysafe_url, json=paysafe_json)
             self.__logger.debug(f"Response '{paysafe_request}'.")
-        except requests.HTTPError as e:
+        except requests.RequestException as e:
             logging.debug(f"Error while sending POST request to endpoint '{paysafe_url}': {e}.")
 
-        return self.__is_response_valid(paysafe_request)
+        return paysafe_request
+        # return self.__is_response_valid(paysafe_request)
 
     def __post_paypal_payment(self, paypal_user_name: str, paypal_password: str):
         paypal_url = "http://127.0.0.1:1111/payment/paypal"
@@ -154,14 +160,16 @@ class PaymentService:
         self.__logger.debug(f"Defined endpoint for POST request: '{paypal_url}'")
         self.__logger.debug(f"Created JSON data: '{paypal_json}'")
 
+        paypal_request = None
         try:
             self.__logger.debug("Sending POST request to endpoint")
             paypal_request = requests.post(paypal_url, json=paypal_json)
             self.__logger.debug(f"Response '{paypal_request}'.")
-        except requests.HTTPError as e:
+        except requests.RequestException as e:
             logging.debug(f"Error while sending POST request to endpoint '{paypal_url}': {e}.")
 
-        return self.__is_response_valid(paypal_request)
+        return paypal_request
+        # return self.__is_response_valid(paypal_request)
 
     def __is_response_valid(self, response: Response):
         if response.status_code != 200:
