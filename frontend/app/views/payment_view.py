@@ -4,14 +4,13 @@ import streamlit as st
 from app.config import Config
 
 
-# TODO: Do not return a value if a selected payment method is not ready yet.
-# TODO: Validate user inputs
+# TODO: Validate user inputs and types.
 class PaymentView:
     def __init__(self, config: Config):
         st.subheader("Payment method")
         self.__config = config
         self.__logger = logging.getLogger("payment_view")
-        self.__select_payment = st.selectbox("Pick payment method", self.__config.get_payment_methods(), index=None)
+        self.__select_payment = st.selectbox("Pick payment method", self.__config.payment_methods, index=None)
 
         self.__initialize_state_elements()
 
@@ -56,7 +55,7 @@ class PaymentView:
                     return None
 
                 return {
-                    "payment_type": "mastercard",
+                    "payment_type": "master_card",
                     "credit_card_number": st.session_state["credit_card_number"],
                     "expiration_date": st.session_state["expiration_date"],
                     "cvc_number": st.session_state["cvc_number"],
