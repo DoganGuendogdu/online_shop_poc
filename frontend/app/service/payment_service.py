@@ -83,7 +83,7 @@ class PaymentService:
 
         expiration_date = datetime.strftime(expiration_date, "%Y-%m-%d")
 
-        master_card_json = {
+        master_card_request_body = {
             "credit_card_number": credit_card_number,
             "expiration_date": expiration_date,
             "cvc": cvc_number,
@@ -93,12 +93,12 @@ class PaymentService:
 
         self.__logger.debug("Sending POST request for 'master_card' payment.")
         self.__logger.debug(f"Defined endpoint for POST request: '{self.__master_card_url}'")
-        self.__logger.debug(f"Created JSON data: '{master_card_json}'")
+        self.__logger.debug(f"Created JSON data: '{master_card_request_body}'")
 
         master_card_request = None
         try:
             self.__logger.debug("Sending POST request to endpoint")
-            master_card_request = requests.post(self.__master_card_url, json=master_card_json)
+            master_card_request = requests.post(self.__master_card_url, json=master_card_request_body)
             self.__logger.debug(f"Response '{master_card_request}'.")
             # return master_card_request
         except requests.RequestException as e:
@@ -108,20 +108,19 @@ class PaymentService:
         return master_card_request
 
     def __post_apple_pay_payment(self, apple_id: str, apple_password: str):
-
-        apple_pay_json = {
+        apple_pay_request_body = {
             "apple_id": apple_id,
             "password": apple_password
         }
 
         self.__logger.debug("Sending POST request for 'apple_pay' payment.")
         self.__logger.debug(f"Defined endpoint for POST request: '{self.__apple_pay_url}'")
-        self.__logger.debug(f"Created JSON data: '{apple_pay_json}'")
+        self.__logger.debug(f"Created JSON data: '{apple_pay_request_body}'")
 
         apple_pay_request = None
         try:
             self.__logger.debug("Sending POST request to endpoint")
-            apple_pay_request = requests.post(self.__apple_pay_url, json=apple_pay_json)
+            apple_pay_request = requests.post(self.__apple_pay_url, json=apple_pay_request_body)
             self.__logger.debug(f"Response '{apple_pay_request}'.")
         except requests.RequestException as e:
             logging.debug(f"Error while sending POST request to endpoint '{self.__apple_pay_url}': {e}.")
@@ -135,18 +134,18 @@ class PaymentService:
                 "Can not process 'paysafe' payment. The length of the provided code has to be 16 digits long.")
             raise ValueError("Paysafe code is not 16 digits long.")
 
-        paysafe_json = {
+        paysafe_request_body = {
             "paysafe_code": paysafe_code
         }
 
         self.__logger.debug("Sending POST request for 'paysafe' payment.")
         self.__logger.debug(f"Defined endpoint for POST request: '{self.__paysafe_url}'")
-        self.__logger.debug(f"Created JSON data: '{paysafe_json}'")
+        self.__logger.debug(f"Created JSON data: '{paysafe_request_body}'")
 
         paysafe_request = None
         try:
             self.__logger.debug("Sending POST request to endpoint")
-            paysafe_request = requests.post(self.__paysafe_url, json=paysafe_json)
+            paysafe_request = requests.post(self.__paysafe_url, json=paysafe_request_body)
             self.__logger.debug(f"Response '{paysafe_request}'.")
         except requests.RequestException as e:
             logging.debug(f"Error while sending POST request to endpoint '{self.__paysafe_url}': {e}.")
