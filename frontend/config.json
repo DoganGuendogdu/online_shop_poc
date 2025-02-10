@@ -1,3 +1,14 @@
 {
-  "payment_methods":["PayPal", "Master Card", "Paysafe", "ApplePay"]
+  "payment_methods": [
+    "PayPal",
+    "Master Card",
+    "Paysafe",
+    "ApplePay"
+  ],
+  "url": {
+    "paypal": "http://backend-fastapi-api:1111/payment/paypal",
+    "paysafe": "http://backend-fastapi-api:1111/payment/paysafe",
+    "apple_pay": "http://backend-fastapi-api:1111/payment/apple_pay",
+    "master_card": "http://backend-fastapi-api:1111/payment/master_card"
+  }
 }
