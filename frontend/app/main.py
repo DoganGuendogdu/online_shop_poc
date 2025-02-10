@@ -1,3 +1,5 @@
+import logging
+
 from config import Config
 from controller.main_page_controller import MainPageController
 from controller.payment_controller import PaymentController
@@ -7,6 +9,8 @@ from views.payment_view import PaymentView
 
 
 def main():
+    logging.basicConfig(level=logging.DEBUG)
+
     config = Config()
 
     main_page_view = MainPageView()
@@ -14,7 +18,7 @@ def main():
     main_page_controller.show_main_page()
 
     payment_view = PaymentView(config)
-    payment_service = PaymentService()
+    payment_service = PaymentService(config)
     payment_controller = PaymentController(payment_view, payment_service)
     payment_controller.call_payment_api()
 
