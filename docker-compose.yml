@@ -1,11 +1,11 @@
-version: '3'
+  version: '3'
 
-services:
-  fast-api:
-    build: backend
-    ports:
-      - "1111:1111"
-  streamlit:
-    build: frontend
-    ports:
-      - "8501:8501"
+  services:
+    backend-fastapi-api:
+      build: backend
+      ports:
+        - "1111:1111"
+    frontend-streamlit:
+      build: frontend
+      ports:
+        - "8501:8501"
