@@ -7,10 +7,10 @@ FROM python:3.11-slim
 # This is necessary since 'app' dir is part of python dir path.
 WORKDIR /backend
 
-RUN mkdir -p /backend/app/
+RUN mkdir -p /backend/app/src
 
 # Copy contents! of local /app dir into /backend/app dir.
-COPY ./app /backend/app
+COPY ./app/src /backend/app/src
 
 # Copy in path 'requirements.txt' into working dir of Docker container.
 COPY requirements.txt /backend
@@ -23,7 +23,7 @@ RUN pip install -r requirements.txt
 EXPOSE 1111
 
 # Start FastAPI API service. Run service on local host on port 1111.
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0",  "--port", "1111"]
+CMD ["uvicorn", "app.src.main:app", "--host", "0.0.0.0",  "--port", "1111"]
 
 # Build Docker container:
 # -t: to tag the container (name the container):

@@ -1,4 +1,4 @@
-from app.routes import payment_routes
+from .routes import payment_routes
 
 from fastapi import FastAPI
 
