@@ -1,5 +1,5 @@
-from app.service.payment_service import PaymentService
-from app.views.payment_view import PaymentView
+from ..service.payment_service import PaymentService
+from ..views.payment_view import PaymentView
 
 
 class PaymentController:

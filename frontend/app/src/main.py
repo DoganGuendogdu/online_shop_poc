@@ -1,15 +1,15 @@
 import logging
 
 from config import Config
-from controller.main_page_controller import MainPageController
-from controller.payment_controller import PaymentController
-from service.payment_service import PaymentService
-from views.main_page_view import MainPageView
-from views.payment_view import PaymentView
+from app.src.controller.main_page_controller import MainPageController
+from app.src.controller.payment_controller import PaymentController
+from app.src.service.payment_service import PaymentService
+from app.src.views.main_page_view import MainPageView
+from app.src.views.payment_view import PaymentView
 
 
 def main():
-    logging.basicConfig(level=logging.DEBUG)
+    logging.basicConfig(level=logging.INFO)
 
     config = Config()
 

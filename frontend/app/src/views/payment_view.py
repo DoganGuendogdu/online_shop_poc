@@ -1,7 +1,7 @@
 import logging
 
 import streamlit as st
-from app.config import Config
+from ..config import Config
 
 
 # TODO: Validate user inputs and types.
@@ -119,7 +119,7 @@ class PaymentView:
 
     def __render_paypal_payment(self):
         with st.container():
-            st.session_state["paypal_username"] = st.text_input("Pleaser enter your PayPal user name.")
+            st.session_state["paypal_username"] = st.text_input("Pleaser enter your PayPal e-mail.")
             st.session_state["paypal_password"] = st.text_input("Please enter your PayPal password.", type="password")
             st.session_state["paypal_button"] = st.button("Pay with PayPal")
 

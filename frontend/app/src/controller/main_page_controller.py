@@ -1,4 +1,4 @@
-from app.views.main_page_view import MainPageView
+from ..views.main_page_view import MainPageView
 
 
 class MainPageController:

@@ -1,7 +1,7 @@
 import json
 from pathlib import Path
 
-PROJECT_ROOT = Path(__file__).absolute().parent.parent
+PROJECT_ROOT = Path(__file__).absolute().parent.parent.parent
 
 
 class Config:

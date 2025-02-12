@@ -4,7 +4,7 @@ from datetime import datetime
 from typing import Union
 
 import requests
-from app.config import Config
+from ..config import Config
 from requests.models import Response
 
 
