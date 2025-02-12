@@ -1,9 +1,13 @@
 from fastapi.testclient import TestClient
 
-from app.main import app
-
+from ..src.main import app
 
 test_client = TestClient(app)
+
+
+def test_invalid_endpoint():
+    response = test_client.post("payment/bitcoin", json={"data": "test"})
+    assert response.status_code == 404
 
 
 def test_post_paypal_payment_200():
@@ -11,3 +15,52 @@ def test_post_paypal_payment_200():
     response = test_client.post("/payment/paypal", json=request_body)
     assert response.status_code == 200
     assert response.json() == {"payment_method": "paypal", "email": "test@gmail.com"}
+
+
+def test_post_paypal_payment_402():
+    request_body = {"email": "gmail.com", "password": "823fnr828932hf"}
+    response = test_client.post("/payment/paypal", json=request_body)
+    assert response.status_code == 422
+
+
+def test_post_master_card_payment_200():
+    request_body = {"credit_card_number": 1233123312341235, "expiration_date": "2025-02-05 09:23:44.790790", "cvc": 123,
+                    "first_name": "Kaan", "last_name": "KEK"}
+    response = test_client.post("payment/master_card", json=request_body)
+    assert response.status_code == 200
+    assert response.json() == {"payment_method": "credit_card", "credit_card_number": 1233123312341235,
+                               "expiration_date": "2025-02-05T09:23:44.790790", "first_name": "Kaan",
+                               "last_name": "KEK"}
+
+
+def test_post_master_card_payment_invalid_cvc_422():
+    request_body = {"credit_card_number": 1233123312341235, "expiration_date": "2025-02-05 09:23:44.790790",
+                    "cvc": 123892734, "first_name": "Kaan", "last_name": "KEK"}
+    response = test_client.post("payment/master_card", json=request_body)
+    assert response.status_code == 422
+
+
+def test_post_paysafe_card_payment_200():
+    request_body = {"paysafe_code": 2007922397084805}
+    response = test_client.post("/payment/paysafe", json=request_body)
+    assert response.status_code == 200
+    assert response.json() == {"payment_method": "paysafe", "paysafe_code": 2007922397084805}
+
+
+def test_post_paysafe_card_payment_invalid_paysafe_code_422():
+    request_body = {"paysafe_code": 20079223970848053333}
+    response = test_client.post("/payment/paysafe", json=request_body)
+    assert response.status_code == 422
+
+
+def test_apple_pay_payment_200():
+    request_body = {"apple_id": "test@ot.com", "password": "98feaojfe"}
+    response = test_client.post("payment/apple_pay", json=request_body)
+    assert response.status_code == 200
+    assert response.json() == {"payment_method": "ApplePay", "apple_id": "test@ot.com"}
+
+
+def test_apple_pay_payment_invalid_email_422():
+    request_body = {"apple_id": "test.com", "password": "98feaojfe"}
+    response = test_client.post("payment/apple_pay", json=request_body)
+    assert response.status_code == 422
