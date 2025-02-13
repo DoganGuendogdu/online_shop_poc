@@ -15,7 +15,7 @@ class PaymentController:
         self.__payment_model.set_payment_method(PayPalStrategy(paypal_model))
         return self.__payment_model.get_payment_details()
 
-    def get_master_card_payment_details(self, credit_card_number: int, expiration_date: datetime, cvc_number: int,
+    def get_master_card_payment_details(self, credit_card_number: int, expiration_date: date, cvc_number: int,
                                         first_name: str, last_name: str):
         credit_card_model = MasterCard(credit_card_number=credit_card_number, expiration_date=expiration_date,
                                        cvc=cvc_number, first_name=first_name, last_name=last_name)
