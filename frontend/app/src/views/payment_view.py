@@ -78,22 +78,32 @@ class PaymentView:
                 # it is necessary to reset the button, so it will not contain a false positive state.
                 st.session_state["apple_pay_button"] = False
 
-                # Check if all required fields have been provided.
-                if not all([
-                    st.session_state.get("apple_id"),
-                    st.session_state.get("apple_id_password")
-                ]):
-                    self.__logger.debug(
-                        "Can not return 'apple_pay' credentials. Either 'apple_id' or 'password' is None.")
-                    st.warning("Please provide input for the required fields")
+                if not st.session_state.get("apple_id"):
+                    self.__logger.debug("'apple_id' is None.")
+                    st.warning("Please ensure to provide an Apple ID.")
                     return None
 
+                if not st.session_state["apple_id_password"]:
+                    self.__logger.debug("'apple_id_password' is None.")
+                    st.warning("Please ensure to provide a password.")
+                    return None
+
+                if not self.__validate_email(st.session_state.get("apple_id")):
+                    self.__logger.debug("'apple_id' in an invalid email address.")
+                    st.warning("Please ensure to provide a valid email address.")
+                    return None
+
+                if not self.__validate_apple_pay_password(st.session_state.get("apple_id_password")):
+                    self.__logger.debug("Invalid 'apple_pay' password'")
+                    st.warning("Please ensure that the provided password has min. 8 and max. 40 digits.")
+                    return None
+
+                st.success("Credentials are valid.")
                 return {
                     "payment_type": "apple_pay",
                     "apple_id": st.session_state.get("apple_id"),
                     "apple_id_password": st.session_state.get("apple_id_password")
                 }
-
             return None
 
     def __render_paysafe_payment(self):
@@ -122,6 +132,7 @@ class PaymentView:
                     "payment_type": "paysafe",
                     "paysafe_code": st.session_state["paysafe_code"]
                 }
+            return None
 
     def __render_paypal_payment(self):
         with st.container():
@@ -161,6 +172,7 @@ class PaymentView:
                     "paypal_username": st.session_state["paypal_username"],
                     "paypal_password": st.session_state["paypal_password"]
                 }
+            return None
 
     def __initialize_state_elements(self):
         # PayPal fields.
@@ -198,6 +210,15 @@ class PaymentView:
             st.session_state["last_name"] = ""
         if "master_card_pay_button" not in st.session_state:
             st.session_state["master_card_pay_button"] = False
+
+    def __validate_apple_pay_password(self, apple_pay_password: str):
+        if len(apple_pay_password) > 40:
+            self.__logger.debug("'apple_pay_password' has more than 40 digits.")
+            return None
+        elif len(apple_pay_password) < 8:
+            self.__logger.debug("'apple_pay_password has less than 8 digits.")
+            return None
+        return apple_pay_password
 
     def __validate_paysafe_code(self, paysafe_code: str):
         try:
