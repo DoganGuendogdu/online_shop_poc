@@ -12,7 +12,7 @@ class PaymentView:
         st.subheader("Payment method")
         self.__config = config
         self.__logger = logging.getLogger("payment_view")
-        self.__select_payment = st.selectbox("Pick payment method", self.__config.payment_methods, index=None)
+        self.__select_payment = st.selectbox("Pick a payment method,", self.__config.payment_methods, index=None)
 
         self.__initialize_state_elements()
 
@@ -108,16 +108,20 @@ class PaymentView:
 
                 # Check if all required fields have been provided.
                 if not st.session_state.get("paysafe_code"):
-                    self.__logger.debug("Can not return 'paysafe' credentials. 'paysafe_code' is None.")
+                    self.__logger.debug("'paysafe_code' is None.")
                     st.warning("Please provide input for the required fields")
                     return None
 
+                if not self.__validate_paysafe_code(st.session_state["paysafe_code"]):
+                    self.__logger.debug("Paysafe code is invalid")
+                    st.warning("Please ensure to provide a valid Paysafe code which is 16 digits long.")
+                    return None
+
+                st.success("Paysafe code is valid")
                 return {
                     "payment_type": "paysafe",
                     "paysafe_code": st.session_state["paysafe_code"]
                 }
-
-            return None
 
     def __render_paypal_payment(self):
         with st.container():
@@ -194,6 +198,16 @@ class PaymentView:
             st.session_state["last_name"] = ""
         if "master_card_pay_button" not in st.session_state:
             st.session_state["master_card_pay_button"] = False
+
+    def __validate_paysafe_code(self, paysafe_code: str):
+        try:
+            int(paysafe_code)
+        except ValueError:
+            return None
+
+        if len(paysafe_code) > 16 or len(paysafe_code) < 16:
+            return None
+        return paysafe_code
 
     def __validate_paypal_password(self, paypal_password: str):
         if len(paypal_password) > 88 or len(paypal_password) < 8:
