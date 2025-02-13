@@ -1,6 +1,8 @@
 import logging
 
 import streamlit as st
+from email_validator import validate_email, EmailNotValidError
+
 from ..config import Config
 
 
@@ -119,7 +121,7 @@ class PaymentView:
 
     def __render_paypal_payment(self):
         with st.container():
-            st.session_state["paypal_username"] = st.text_input("Pleaser enter your PayPal e-mail.")
+            st.session_state["paypal_username"] = st.text_input("Pleaser enter your PayPal email.")
             st.session_state["paypal_password"] = st.text_input("Please enter your PayPal password.", type="password")
             st.session_state["paypal_button"] = st.button("Pay with PayPal")
 
@@ -128,20 +130,33 @@ class PaymentView:
                 # it is necessary to reset the button, so it will not contain a false positive state.
                 st.session_state["paypal_button"] = False
 
-                # Check if all required fields have been provided.
-                if not all([st.session_state.get("paypal_username"), st.session_state.get("paypal_password")]):
-                    self.__logger.debug(
-                        "Can not return 'paypal' credentials. Either 'paypal_username' or 'paypal_password' is None.")
-                    st.warning("Please provide input for the required fields")
+                if not st.session_state.get("paypal_username"):
+                    self.__logger.debug("'Paypal username' is None.")
+                    st.warning("Please provide your Paypal Email.")
                     return None
 
+                if not st.session_state.get("paypal_password"):
+                    self.__logger.debug("Paypal password is None.")
+                    st.warning("Please provide your PayPal password.")
+                    return None
+
+                if not self.__validate_email(st.session_state.get("paypal_username")):
+                    self.__logger.debug(
+                        f"The provided email: {st.session_state.get('paypal_username')} has an invalid format.")
+                    st.warning("Please provide a valid email address.")
+                    return None
+
+                if not self.__validate_paypal_password(st.session_state.get("paypal_password")):
+                    self.__logger.debug("Invalid password.")
+                    st.warning("Please ensure that your provided password is min. 8 and max. 88 digits long.")
+                    return None
+
+                st.success("Credentials are valid.")
                 return {
                     "payment_type": "paypal",
                     "paypal_username": st.session_state["paypal_username"],
                     "paypal_password": st.session_state["paypal_password"]
                 }
-
-            return None
 
     def __initialize_state_elements(self):
         # PayPal fields.
@@ -179,3 +194,15 @@ class PaymentView:
             st.session_state["last_name"] = ""
         if "master_card_pay_button" not in st.session_state:
             st.session_state["master_card_pay_button"] = False
+
+    def __validate_paypal_password(self, paypal_password: str):
+        if len(paypal_password) > 88 or len(paypal_password) < 8:
+            return None
+        return paypal_password
+
+    def __validate_email(self, email: str):
+        try:
+            email_info = validate_email(email)
+            return str(email_info.normalized)
+        except EmailNotValidError:
+            return None
