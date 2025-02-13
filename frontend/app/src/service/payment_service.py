@@ -47,8 +47,7 @@ class PaymentService:
         else:
             self.__logger.debug(f"The provided 'payment_type':{payment_type} does not exist.")
 
-    def __post_master_card_payment(self, credit_card_number: int, expiration_date: Union[date, str],
-                                   cvc_number: int,
+    def __post_master_card_payment(self, credit_card_number: int, expiration_date: date, cvc_number: int,
                                    first_name: str, last_name: str):
         self.__logger.info("Processing master card payment.")
 
