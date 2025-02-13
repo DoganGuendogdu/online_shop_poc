@@ -35,7 +35,7 @@ class PaymentView:
             st.session_state["credit_card_number"] = st.text_input("Please enter your credit card number.",
                                                                    max_chars=16)
             st.session_state["expiration_date"] = st.date_input("Please enter the expiration date of your credit card.")
-            st.session_state["cvc_number"] = st.text_input("Please enter your CVC number.", max_chars=3)
+            st.session_state["cvc_number"] = st.text_input("Please enter your CVC number.", type="password", max_chars=3)
             st.session_state["first_name"] = st.text_input("Please enter your first name.", max_chars=40)
             st.session_state["last_name"] = st.text_input("Please enter your last name.", max_chars=40)
             st.session_state["master_card_pay_button"] = st.button("Pay with MasterCard")
@@ -98,7 +98,7 @@ class PaymentView:
     def __render_apple_pay_payment(self):
         with st.container():
             st.session_state["apple_id"] = st.text_input("Please enter your Apple ID.")
-            st.session_state["apple_id_password"] = st.text_input("Please enter your password.", type="password")
+            st.session_state["apple_id_password"] = st.text_input("Please enter your password.", type="password", max_chars=40)
             st.session_state["apple_pay_button"] = st.button("Pay with Apple Pay")
 
             if st.session_state["apple_pay_button"]:
@@ -136,7 +136,7 @@ class PaymentView:
 
     def __render_paysafe_payment(self):
         with st.container():
-            st.session_state["paysafe_code"] = st.text_input("Pleaser enter your PaySafe code.", type="password")
+            st.session_state["paysafe_code"] = st.text_input("Pleaser enter your PaySafe code.", type="password", max_chars=16)
             st.session_state["paysafe_button"] = st.button("Pay with Paysafe")
 
             if st.session_state["paysafe_button"]:
@@ -165,7 +165,7 @@ class PaymentView:
     def __render_paypal_payment(self):
         with st.container():
             st.session_state["paypal_username"] = st.text_input("Pleaser enter your PayPal email.")
-            st.session_state["paypal_password"] = st.text_input("Please enter your PayPal password.", type="password")
+            st.session_state["paypal_password"] = st.text_input("Please enter your PayPal password.", type="password", max_chars=88)
             st.session_state["paypal_button"] = st.button("Pay with PayPal")
 
             if st.session_state["paypal_button"]:
