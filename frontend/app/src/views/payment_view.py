@@ -1,4 +1,5 @@
 import logging
+from datetime import date
 
 import streamlit as st
 from email_validator import validate_email, EmailNotValidError
@@ -12,7 +13,7 @@ class PaymentView:
         st.subheader("Payment method")
         self.__config = config
         self.__logger = logging.getLogger("payment_view")
-        self.__select_payment = st.selectbox("Pick a payment method,", self.__config.payment_methods, index=None)
+        self.__select_payment = st.selectbox("Pick a payment method.", self.__config.payment_methods, index=None)
 
         self.__initialize_state_elements()
 
@@ -31,31 +32,58 @@ class PaymentView:
 
     def __render_master_card_payment(self):
         with st.container():
-            st.session_state["credit_card_number"] = st.text_input("Please enter your credit card number.")
+            st.session_state["credit_card_number"] = st.text_input("Please enter your credit card number.",
+                                                                   max_chars=16)
             st.session_state["expiration_date"] = st.date_input("Please enter the expiration date of your credit card.")
             st.session_state["cvc_number"] = st.text_input("Please enter your CVC number.", max_chars=3)
-            st.session_state["first_name"] = st.text_input("Please enter your first name.")
-            st.session_state["last_name"] = st.text_input("Please enter your last name.")
+            st.session_state["first_name"] = st.text_input("Please enter your first name.", max_chars=40)
+            st.session_state["last_name"] = st.text_input("Please enter your last name.", max_chars=40)
             st.session_state["master_card_pay_button"] = st.button("Pay with MasterCard")
 
             if st.session_state["master_card_pay_button"]:
-                # Reset button state to prevent false positives
                 st.session_state["master_card_pay_button"] = False
 
-                # Check if all required fields have been provided
-                if not all([
-                    st.session_state.get("credit_card_number"),
-                    st.session_state.get("expiration_date"),
-                    st.session_state.get("cvc_number"),
-                    st.session_state.get("first_name"),
-                    st.session_state.get("last_name")
-                ]):
-                    self.__logger.debug(
-                        "Cannot return 'MasterCard' credentials. One or more required fields are missing."
-                    )
-                    st.warning("Please provide input for all required fields.")
+                if not st.session_state["credit_card_number"]:
+                    self.__logger.debug("'credit_card_number' is None.")
+                    st.warning("Please provide a credit card number.")
                     return None
 
+                if not st.session_state["expiration_date"]:
+                    self.__logger.debug("'expiration_date' is None.")
+                    st.session_state("Please provide an expiration date.")
+                    return None
+
+                if not st.session_state["cvc_number"]:
+                    self.__logger.debug("'cvc_number' is None.")
+                    st.warning("Please provide a CVC number.")
+                    return None
+
+                if not st.session_state["first_name"]:
+                    self.__logger.debug("'first_name' is None.")
+                    st.warning("Please provide your first name.")
+                    return None
+
+                if not st.session_state["last_name"]:
+                    self.__logger.debug("'last_name' is None.")
+                    st.warning("Please provide your last name.")
+                    return None
+
+                if not self.__validate_credit_card_number(st.session_state.get("credit_card_number")):
+                    self.__logger.debug("Invalid 'credit_card_number'.")
+                    st.warning("Please ensure to provide a valid credit card number with 16 digits.")
+                    return None
+
+                if not self.__validate_expiration_date(st.session_state.get("expiration_date")):
+                    self.__logger.debug("Invalid 'expiration_date'.")
+                    st.warning("Please ensure that the provided credit card is not expired.")
+                    return None
+
+                if not self.__validate_cvc(st.session_state["cvc_number"]):
+                    self.__logger.debug("Invalid 'cvc_number':")
+                    st.warning("Please ensure to provide a valid cvc number with 3 digits.")
+                    return None
+
+                st.success("Credentials are valid")
                 return {
                     "payment_type": "master_card",
                     "credit_card_number": st.session_state["credit_card_number"],
@@ -210,6 +238,42 @@ class PaymentView:
             st.session_state["last_name"] = ""
         if "master_card_pay_button" not in st.session_state:
             st.session_state["master_card_pay_button"] = False
+
+    def __validate_cvc(self, cvc: str):
+        try:
+            int(cvc)
+        except ValueError:
+            self.__logger.debug("'cvc' is invalid. Cvc number contains string character.")
+            return None
+
+        if len(cvc) > 3:
+            self.__logger.debug("'cvc' has more than 3 digits.")
+            return None
+        elif len(cvc) < 3:
+            self.__logger.debug("'cvc' has less than 3 digits.")
+            return None
+        return cvc
+
+    def __validate_expiration_date(self, expiration_date: date):
+        if expiration_date <= date.today():
+            self.__logger.debug("'expiration_date' has expired.")
+            return None
+        return expiration_date
+
+    def __validate_credit_card_number(self, credit_card_number: str):
+        try:
+            int(credit_card_number)
+        except ValueError:
+            self.__logger.debug("Invalid 'credit_card_number.' Numbers contains string character.")
+            return None
+
+        if len(credit_card_number) > 16:
+            self.__logger.debug("'credit_card_number' has more than 16 digits.")
+            return None
+        elif (len(credit_card_number)) < 16:
+            self.__logger.debug("'credit_card_number has less than 16 digits.'")
+            return None
+        return credit_card_number
 
     def __validate_apple_pay_password(self, apple_pay_password: str):
         if len(apple_pay_password) > 40:
