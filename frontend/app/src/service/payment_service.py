@@ -126,7 +126,20 @@ class PaymentService:
 
         self.__logger.debug("Sending POST request for 'apple_pay' payment.")
         self.__logger.debug(f"Defined endpoint for POST request: '{self.__apple_pay_url}'")
-        self.__logger.debug(f"Created JSON data: '{apple_pay_request_body}'")
+
+        self.__logger.debug(
+            f"Validating 'apple_id': '{apple_id}'."
+        )
+        if not self.__validate_email(apple_id):
+            self.__logger.error(
+                f"'apple_id': {apple_id} is not valid. Returning None."
+
+            )
+            return None
+
+        self.__logger.debug(
+            "'apple_id' is valid."
+        )
 
         try:
             self.__logger.debug("Sending POST request to endpoint")
