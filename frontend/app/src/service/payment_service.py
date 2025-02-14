@@ -9,7 +9,7 @@ from requests.models import Response
 from ..config import Config
 
 
-# TODO: Validate inputs. Check why passwords are exposed. Handle HTTP statuses. Exclude passwords from logging.
+# TODO: Validate Master Card inputs.
 class PaymentService:
     def __init__(self, config: Config):
         self.__paypal_url = config.paypal_url
@@ -107,7 +107,6 @@ class PaymentService:
 
         self.__logger.debug("Sending POST request for 'master_card' payment.")
         self.__logger.debug(f"Defined endpoint for POST request: '{self.__master_card_url}'")
-        self.__logger.debug(f"Created JSON data: '{master_card_request_body}'")
 
         try:
             self.__logger.debug("Sending POST request to endpoint")
