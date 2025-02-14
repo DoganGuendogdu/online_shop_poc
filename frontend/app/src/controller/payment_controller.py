@@ -10,4 +10,5 @@ class PaymentController:
     def call_payment_api(self):
         payment_input_data = self.__payment_view.handle_payment()
         if payment_input_data:
-            self.__payment_service.post_payment(payment_input_data)
+            http_response = self.__payment_service.post_payment(payment_input_data)
+            result = self.__payment_service.validate_http_response(http_response)

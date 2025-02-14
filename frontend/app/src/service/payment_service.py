@@ -1,14 +1,14 @@
 import logging
 from datetime import date
 from datetime import datetime
-from typing import Union
 
 import requests
-from ..config import Config
 from requests.models import Response
 
+from ..config import Config
 
-# TODO: Validate inputs. Check why passwords are exposed. Handle HTTP statuses.
+
+# TODO: Validate inputs. Check why passwords are exposed. Handle HTTP statuses. Exclude passwords from logging.
 class PaymentService:
     def __init__(self, config: Config):
         self.__paypal_url = config.paypal_url
@@ -47,24 +47,36 @@ class PaymentService:
         else:
             self.__logger.debug(f"The provided 'payment_type':{payment_type} does not exist.")
 
+    def validate_http_response(self, response: Response):
+        try:
+            response.json()
+        except ValueError as e:
+            self.__logger.debug(f"Can not decode response as JSON: {e}.")
+            return None
+
+        if response.status_code == 200:
+            self.__logger.debug("Response status: '200'")
+            # Use 'update' method to allow that 'status' is at first place.
+            result = {"status": response.status_code}
+            result.update(response.json())
+            self.__logger.debug(f"Result: {result}")
+            return result
+
+        if response.status_code != 200:
+            self.__logger.debug("Request returned with ERROR.")
+            error_details = self.__get_error_details(response)
+            self.__logger.debug(f"Error details: {error_details}")
+            return error_details
+
     def __post_master_card_payment(self, credit_card_number: int, expiration_date: date, cvc_number: int,
                                    first_name: str, last_name: str):
         self.__logger.info("Processing master card payment.")
-
-        credit_card_number = int(credit_card_number)
-        cvc_number = int(cvc_number)
 
         if len(str(credit_card_number)) != 16:
             self.__logger.debug("Length of 'credit_card_number' is unequal to 16 digits")
 
         if len(str(cvc_number)) != 3:
             self.__logger.debug("Length of 'cvc' is unequal to 3.")
-
-        if isinstance(expiration_date, str):
-            try:
-                expiration_date = datetime.strptime(expiration_date, "%Y-%m-%d")
-            except ValueError:
-                self.__logger.debug(f"'Expiration date' str: '{expiration_date}' does not meet format '%Y-%m-%d'")
 
         if isinstance(expiration_date, date):
             try:
@@ -116,16 +128,14 @@ class PaymentService:
         self.__logger.debug(f"Defined endpoint for POST request: '{self.__apple_pay_url}'")
         self.__logger.debug(f"Created JSON data: '{apple_pay_request_body}'")
 
-        apple_pay_request = None
         try:
             self.__logger.debug("Sending POST request to endpoint")
-            apple_pay_request = requests.post(self.__apple_pay_url, json=apple_pay_request_body)
-            self.__logger.debug(f"Response '{apple_pay_request}'.")
+            apple_pay_response = requests.post(self.__apple_pay_url, json=apple_pay_request_body)
+            self.__logger.debug(f"Response '{apple_pay_response}'.")
+            return apple_pay_response
         except requests.RequestException as e:
             logging.debug(f"Error while sending POST request to endpoint '{self.__apple_pay_url}': {e}.")
-
-        return apple_pay_request
-        # return self.__is_response_valid(apple_pay_request)
+            return None
 
     def __post_paysafe_payment(self, paysafe_code: int):
         if len(str(paysafe_code)) != 16:
@@ -141,16 +151,14 @@ class PaymentService:
         self.__logger.debug(f"Defined endpoint for POST request: '{self.__paysafe_url}'")
         self.__logger.debug(f"Created JSON data: '{paysafe_request_body}'")
 
-        paysafe_request = None
         try:
             self.__logger.debug("Sending POST request to endpoint")
             paysafe_request = requests.post(self.__paysafe_url, json=paysafe_request_body)
             self.__logger.debug(f"Response '{paysafe_request}'.")
+            return paysafe_request
         except requests.RequestException as e:
             logging.debug(f"Error while sending POST request to endpoint '{self.__paysafe_url}': {e}.")
-
-        return paysafe_request
-        # return self.__is_response_valid(paysafe_request)
+            return None
 
     def __post_paypal_payment(self, paypal_user_name: str, paypal_password: str):
         paypal_request_body = {
@@ -162,22 +170,49 @@ class PaymentService:
         self.__logger.debug(f"Defined endpoint for POST request: '{self.__paypal_url}'")
         self.__logger.debug(f"Created JSON data: '{paypal_request_body}'")
 
-        paypal_request = None
         try:
             self.__logger.debug("Sending POST request to endpoint")
-            paypal_request = requests.post(self.__paypal_url, json=paypal_request_body)
-            self.__logger.debug(f"Response '{paypal_request}'.")
+            paypal_response = requests.post(self.__paypal_url, json=paypal_request_body)
+            self.__logger.debug(f"Response '{paypal_response}'.")
+            return paypal_response
         except requests.RequestException as e:
             logging.debug(f"Error while sending POST request to endpoint '{self.__paypal_url}': {e}.")
+            return None
 
-        return paypal_request
-        # return self.__is_response_valid(paypal_request)
+    def __get_error_details(self, response: Response):
+        response_details = response.json()
+        self.__logger.debug(f"Response details '{response_details}'")
 
-    def __is_response_valid(self, response: Response):
-        if response.status_code != 200:
-            self.__logger.debug(f"Request failed. Error code: '{response.status_code}'")
+        self.__logger.debug("Extracting 'detail' object.")
+        detail = response_details.get("detail")
+
+        if not detail:
+            self.__logger.debug(f"Can not extract 'detail' from {response_details}. 'detail' does not exist.")
+            return None
 
         try:
-            return response.json()
-        except TypeError as e:
-            self.__logger.debug(f"Error while returning successful response '{response}' as JSON object: {e}")
+            for data in detail:
+                error_type = data.get("type")
+                error_location = data.get("loc")
+                error_message = data.get("msg")
+                user_input = data.get("input")
+
+                if not error_type:
+                    self.__logger.debug("'error_type' is None.")
+                if not error_location:
+                    self.__logger.debug("'error_location' is None.")
+                if not error_type:
+                    self.__logger.debug("'error_type' is None.")
+                if not user_input:
+                    self.__logger.debug("'user_input' is None.")
+
+                return {
+                    "status": response.status_code,
+                    "error_type": error_type,
+                    "error_location": error_location,
+                    "error_message": error_message,
+                    "user_input": user_input
+                }
+        except KeyError as e:
+            self.__logger.debug(f"Can not extract details from response. Key does not exist: {e}.")
+            return None
