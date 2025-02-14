@@ -80,7 +80,9 @@ class PaymentService:
 
         if isinstance(expiration_date, date):
             try:
+                # Convert date object to str to ensure format.
                 expiration_date = datetime.strftime(expiration_date, "%Y-%m-%d")
+                # Convert date str back to date object.
                 expiration_date = datetime.strptime(expiration_date, "%Y-%m-%d")
             except ValueError:
                 self.__logger.debug(f"'Expiration date' datetime: '{expiration_date}' does not meet format '%Y-%m-%d'")
@@ -106,17 +108,14 @@ class PaymentService:
         self.__logger.debug(f"Defined endpoint for POST request: '{self.__master_card_url}'")
         self.__logger.debug(f"Created JSON data: '{master_card_request_body}'")
 
-        master_card_request = None
         try:
             self.__logger.debug("Sending POST request to endpoint")
-            master_card_request = requests.post(self.__master_card_url, json=master_card_request_body)
-            self.__logger.debug(f"Response '{master_card_request}'.")
-            # return master_card_request
+            master_card_response = requests.post(self.__master_card_url, json=master_card_request_body)
+            self.__logger.debug(f"Response '{master_card_response}'.")
+            return master_card_response
         except requests.RequestException as e:
             logging.debug(f"Error while sending POST request to endpoint '{self.__master_card_url}': {e}.")
-
-        # return self.__is_response_valid(master_card_request)
-        return master_card_request
+            return None
 
     def __post_apple_pay_payment(self, apple_id: str, apple_password: str):
         apple_pay_request_body = {
