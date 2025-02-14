@@ -138,26 +138,30 @@ class PaymentService:
             return None
 
     def __post_paysafe_payment(self, paysafe_code: int):
-        if len(str(paysafe_code)) != 16:
-            self.__logger.debug(
-                "Can not process 'paysafe' payment. The length of the provided code has to be 16 digits long.")
-            raise ValueError("Paysafe code is not 16 digits long.")
-
         paysafe_request_body = {
             "paysafe_code": paysafe_code
         }
+        self.__logger.debug(
+            "Validating 'paysafe_code'."
+        )
+        if not self.__validate_paysafe_code(paysafe_code):
+            self.__logger.error(
+                "'paysafe_code' is not valid. Returning None."
+            )
+            return None
+
+        self.__logger.debug("'paysafe_code' is valid.")
 
         self.__logger.debug("Sending POST request for 'paysafe' payment.")
         self.__logger.debug(f"Defined endpoint for POST request: '{self.__paysafe_url}'")
-        self.__logger.debug(f"Created JSON data: '{paysafe_request_body}'")
 
         try:
-            self.__logger.debug("Sending POST request to endpoint")
+            self.__logger.debug("Sending POST request to endpoint.")
             paysafe_request = requests.post(self.__paysafe_url, json=paysafe_request_body)
             self.__logger.debug(f"Response '{paysafe_request}'.")
             return paysafe_request
         except requests.RequestException as e:
-            logging.debug(f"Error while sending POST request to endpoint '{self.__paysafe_url}': {e}.")
+            logging.error(f"Error while sending POST request to endpoint '{self.__paysafe_url}': {e}.")
             return None
 
     def __post_paypal_payment(self, paypal_user_name: str, paypal_password: str):
@@ -233,8 +237,13 @@ class PaymentService:
             self.__logger.debug(f"Can not extract details from response. Key does not exist: {e}.")
             return None
 
-    def __validate_email(self, email: str):
 
+    def __validate_paysafe_code(self, paysafe_code: int):
+        if len(str(paysafe_code)) > 16 or len(str(paysafe_code)) < 16:
+            return None
+        return paysafe_code
+
+    def __validate_email(self, email: str):
         try:
             email_info = validate_email(email)
             return str(email_info.normalized)

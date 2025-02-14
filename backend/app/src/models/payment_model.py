@@ -37,7 +37,7 @@ class PaySafeStrategy(PaymentStrategy):
     def get_payment_details(self):
         return {
             "payment_method": "paysafe",
-            **self.__paysafe_model.model_dump()
+            **self.__paysafe_model.model_dump(exclude={"paysafe_code"})
         }
 
 
