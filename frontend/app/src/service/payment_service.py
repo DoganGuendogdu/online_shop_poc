@@ -3,6 +3,7 @@ from datetime import date
 from datetime import datetime
 
 import requests
+from email_validator import validate_email, EmailNotValidError
 from requests.models import Response
 
 from ..config import Config
@@ -167,10 +168,26 @@ class PaymentService:
 
         self.__logger.debug("Sending POST request for 'paypal' payment.")
         self.__logger.debug(f"Defined endpoint for POST request: '{self.__paypal_url}'")
-        self.__logger.debug(f"Created JSON data: '{paypal_request_body}'")
+
+        self.__logger.debug(f"Validating email '{paypal_user_name}'.")
+        if not self.__validate_email(paypal_user_name):
+            self.__logger.debug("Email is not valid. Returning None.")
+            return None
+        self.__logger.debug("Email is valid.")
+
+        self.__logger.debug(
+            "Validating password."
+        )
+        if not self.__validate_paypal_password(paypal_password):
+            self.__logger.error(
+                "Password is not valid."
+            )
+            return None
 
         try:
-            self.__logger.debug("Sending POST request to endpoint")
+            self.__logger.debug(
+                "Sending POST request to endpoint."
+            )
             paypal_response = requests.post(self.__paypal_url, json=paypal_request_body)
             self.__logger.debug(f"Response '{paypal_response}'.")
             return paypal_response
@@ -215,3 +232,16 @@ class PaymentService:
         except KeyError as e:
             self.__logger.debug(f"Can not extract details from response. Key does not exist: {e}.")
             return None
+
+    def __validate_email(self, email: str):
+
+        try:
+            email_info = validate_email(email)
+            return str(email_info.normalized)
+        except EmailNotValidError:
+            return None
+
+    def __validate_paypal_password(self, paypal_password: str):
+        if len(paypal_password) > 88 or len(paypal_password) < 8:
+            return None
+        return paypal_password
